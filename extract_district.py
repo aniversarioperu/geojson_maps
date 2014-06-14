@@ -1,5 +1,17 @@
 #-*- coding: utf-8 -*-
 import json
+import math
+
+
+def convert(coordinates):
+    new_coords = []
+    for i in coordinates:
+        for j in i[0]:
+            lati = 90 + j[0]
+            longi = 90 + j[1]
+            new_coord = [lati, longi]
+            new_coords.append(new_coord)
+    return [[new_coords]]
 
 
 names = [
@@ -35,6 +47,12 @@ for  i in districts['features']:
         if i['properties']['name'] in names \
                 and i['properties']['id'] not in ids \
                 and i['properties']['ubigeo'][0:4] in ubigeos:
+            #longitude = str(i['geometry']['coordinates'][0][0][0][0])
+            #i['properties']['longitude'] = longitude
+            #latitude = str(i['geometry']['coordinates'][0][0][0][1])
+            coordinates = i['geometry']['coordinates']
+            i['geometry']['coordinates'] = convert(coordinates)
+            #print coordinates
             objects.append(i)
             ids.append(i['properties']['id'])
 
