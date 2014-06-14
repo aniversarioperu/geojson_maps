@@ -20,17 +20,16 @@ names = [
     "INDEPENDENCIA", "JESUS MARIA", "LA MOLINA", "LA VICTORIA", "LINCE",
     "LOS OLIVOS", "LURIGANCHO", "LURIN", "MAGDALENA DEL MAR", 
     "MAGDALENA VIEJA", "MIRAFLORES",
-    "PACHACAMAC", "PUCUSANA", "PUEBLO LIBRE", "PUENTE PIEDRA", "PUNTA HERMOSA",
-    "PUNTA NEGRA", "RIMAC", "SAN BARTOLO", "SAN BORJA", "SAN ISIDRO",
+    "PACHACAMAC",  "PUEBLO LIBRE", "PUENTE PIEDRA", "PUNTA HERMOSA",
+    "PUNTA NEGRA", "RIMAC",  "SAN BORJA", "SAN ISIDRO",
     "SAN JUAN DE LURIGANCHO", "SAN MARTIN DE PORRES",
     "SAN JUAN DE MIRAFLORES", "SAN LUIS", "SAN MIGUEL",
     "SANTA ANITA", "SANTA ROSA", "SANTIAGO DE SURCO", "SURQUILLO", 
     "VILLA EL SALVADOR", "VILLA MARIA DEL TRIUNFO",
-    "SANTA MARIA DEL MAR",
     "BELLAVISTA", "LA PERLA", "CALLAO", "VENTANILLA", 
     "CARMEN DE LA LEGUA REYNOSO", "LA PUNTA",
 ]
-
+#"PUCUSANA", "SANTA MARIA DEL MAR", "SAN BARTOLO",
 
 ubigeos = ["1501", "0701"]
 print "Districts are harcoded in list ``names``", names
@@ -53,6 +52,9 @@ for  i in districts['features']:
             coordinates = i['geometry']['coordinates']
             i['geometry']['coordinates'] = convert(coordinates)
             #print coordinates
+
+            if i['properties']['name'] == "MAGDALENA VIEJA":
+                i['properties']['name'] = "PUEBLO LIBRE"
             objects.append(i)
             ids.append(i['properties']['id'])
 
