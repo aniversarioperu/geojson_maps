@@ -1,62 +1,64 @@
 <?php
-if preg_match("/([A-Z]+\.geojson)/", $_GET['filename'], $matches) {
+
+function clean_string($string) {
+    $i = 0;
+    if( (isset($string) && trim($string) != '') ) {
+        $user_strings = array();
+        $symbols = array(",",'"',"'","&","/","\\",";","=");
+        #is number? then dont filter by symbols
+        if( is_numeric($string) ) {
+            array_push($user_strings, $string);
+        }
+        else { #not number, then clean by filtering symbols
+            $id_subject = trim(str_replace($symbols, "", $string));
+            $subject = explode(" ", $id_subject);
+            foreach( $subject as $val ) {
+                if( trim($val) != "" ) {
+                    $pattern = '/[a-zA-Z0-9_\.\-]+/';
+                    preg_match($pattern, $val, $match);
+                    if( $i < 3 ) {
+                        array_push($user_strings, $match[0]);
+                    }
+                    $i++;
+                }
+            }
+        }
+        return $user_strings;
+    }
+}
+
+if( preg_match("/([a-z]+\.geojson)/", $_GET['filename'], $matches) ) {
     $filename = $matches[0];
-    echo $filename;
 }
 else {
-    echo "fail";
+    exit(0);
 }
+
+$new_GET['callback'] = clean_string($_GET['callback']);
+$new_GET['jsoncallback'] = clean_string($_GET['jsoncallback']);
 
 if( isset($new_GET['callback']) ) { 
     $format = "jsonp";
-    $callback = $new_GET['callback'];
+    $callback = $new_GET['callback'][0];
 }
 if( isset($new_GET['jsoncallback']) ) {
     $format = "jsonp";
-    $callback = $new_GET['jsoncallback'];
+    $callback = $new_GET['jsoncallback'][0];
 }
 
 if( $format == "json" || $format == "jsonp" ) {
-    $json_output = array();
 
-    $json_output['institutionCode'] = 'NSG';
-    $json_output['catalogNumber'] = $row->code;
-    $json_output['voucher_code'] = $row->code;
-    $json_output['recordNumber'] = $row->code;
-    $json_output['family'] = $row->family;
-    $json_output['subfamily'] = $row->subfamily;
-    $json_output['tribe'] = $row->tribe;
-    $json_output['subtribe'] = $row->subtribe;
-    $json_output['genus'] = $row->genus;
-    $json_output['specificEpithet'] = $row->species;
-    $json_output['infraspecificEpithet'] = $row->subspecies;
-    $json_output['country'] = $row->country;
-    $json_output['locality'] = $row->specificLocality;
-    $json_output['decimalLatitude'] = $row->latitude;
-    $json_output['decimalLongitude'] = $row->longitude;
-    $json_output['verbatimElevation'] = $row->altitude;
-    $json_output['collector'] = $row->collector;
-    $json_output['eventDate'] = $row->dateCollection;
-    $json_output['voucherLocality'] = $row->voucherLocality;
-    $json_output['sex'] = $row->sex;
-    $json_output['voucherImage'] = $row->voucherImage;
-
-    $tmp_query = "SELECT accession FROM sequences WHERE code='$row->code'";
-    $tmp_result = mysql_query($tmp_query) or die("Error in query: $tmp_query. " . mysql_error());
-    if( mysql_num_rows($tmp_result) > 0 ) {
-        $tmp_accessions = "";
-        while( $tmp_row = mysql_fetch_object($tmp_result) ) {
-            $tmp_accessions .= $tmp_row->accession . ";";
-        }
+    if( file_exists($filename) ) {
+        $file_exists = True;
     }
-    $tmp_accessions = preg_replace("/;$/", "", $tmp_accessions);
-    $json_output['associatedSequences'] = $tmp_accessions;
+    else {
+        exit(0);
+    }
 
-    unset($tmp_query);
-    unset($tmp_result);
-    unset($tmp_accessions);
+    $json = file_get_contents($filename);
 
-    $json = json_format(json_encode($json_output));
+
+    # $json = json_format(json_encode($json_output));
     header("Content-type: application/javascript; charset=utf-8");
     if( $format == "json" ) {
         echo $json;
